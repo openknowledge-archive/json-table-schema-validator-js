@@ -48,7 +48,7 @@ describe('json schema table validator', function(){
 
     it('should validate date', function(){
       var f = validators('date');
-      assert.equal(f('2013-11-13'), Date.parse('2013-11-13'));
+      assert.deepEqual(f('2013-11-13'), new Date('2013-11-13'));
       assert.throws(
         function(){
           f('2013/11/13');
@@ -58,7 +58,7 @@ describe('json schema table validator', function(){
 
     it('should validate datetime', function(){
       var f = validators('datetime');
-      assert.equal(f('2013-11-13T20:11:21+01:00'), Date.parse('2013-11-13T20:11:21+01:00'));
+      assert.deepEqual(f('2013-11-13T20:11:21+01:00'), new Date('2013-11-13T20:11:21+01:00'));
     });
 
     it('should validate boolean', function(){
@@ -112,9 +112,9 @@ describe('json schema table validator', function(){
       ];
 
       var expected = [
-        {"a": "a", "b": 1, "c": 1.2, "d": Date.parse("2013-11-13")},
-        {"a": "x", "b": 2, "c": 2.3, "d": Date.parse("2013-11-14")},
-        {"a": "y", "b": 3, "c": 3.4, "d": Date.parse("2013-11-15")}
+        {"a": "a", "b": 1, "c": 1.2, "d": new Date("2013-11-13")},
+        {"a": "x", "b": 2, "c": 2.3, "d": new Date("2013-11-14")},
+        {"a": "y", "b": 3, "c": 3.4, "d": new Date("2013-11-15")}
       ];
 
       var s = new Readable({objectMode:true});
@@ -129,7 +129,11 @@ describe('json schema table validator', function(){
       var counter = 0;
       v.on('data', function(obj){
         for(var key in obj){
-          assert.strictEqual(obj[key], expected[counter][key]);          
+          if(key === 'd'){
+            assert.deepEqual(obj[key], expected[counter][key]);          
+          } else {
+            assert.strictEqual(obj[key], expected[counter][key]);          
+          }
         }
         counter++;
       });
