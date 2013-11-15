@@ -154,6 +154,21 @@ describe('json schema table validator', function(){
       });
     });
 
+    it('should work when schema is {}', function(done){
+      var expected = {"a": "y", "b": "3", "c": "3.4", "d": "2013/11/15"};
+      var s = new Readable({objectMode:true});
+      s.push(expected);
+      s.push(null);
+
+      var v = s.pipe(new Validator({}));
+      v.on('data', function(data){
+        assert.deepEqual(data, expected);
+      });
+      v.on('error', function(err) {throw err;});
+      v.on('end', done);
+    });
+
+
   });
 
 });

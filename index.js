@@ -1,9 +1,12 @@
 var validators = require('./lib/validators')
   , util = require('util')
+  , clone = require('clone')
   , Transform = require("stream").Transform;
 
 function Validator(schema, options) {
-  options = options || {};
+  schema.fields = schema.fields || [];
+  
+  options = clone(options) || {};
   options.objectMode = true;
 
   Transform.call(this, options);
@@ -16,7 +19,6 @@ function Validator(schema, options) {
 }
 
 util.inherits(Validator, Transform);
-
 
 Validator.prototype._transform = function(obj, encoding, callback){
 
