@@ -48,7 +48,7 @@ describe('json schema table validator', function(){
 
     it('should validate date', function(){
       var f = validators('date');
-      assert.deepEqual(f('2013-11-13'), new Date('2013-11-13'));
+      assert.equal(f('2013-11-13').toISOString(), "2013-11-13T00:00:00.000Z");
       assert.throws(
         function(){
           f('2013/11/13');
