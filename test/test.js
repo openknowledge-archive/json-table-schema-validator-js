@@ -100,51 +100,80 @@ describe('json schema table validator', function(){
         {"name": "a", "type": "string"},
         {"name": "b", "type": "integer"},
         {"name": "c", "type": "number"},
-        {"name": "d", "type": "date"}
+        {"name": "d", "type": "date"},
+        {"name": "e", "type": "boolean"}
       ]
     };
 
-    it('should create a validator transform stream properly coercing the values', function(done){
+    it('should create a validator transform stream properly coercing the values even if the values are already coerced', function(done){
+
       var data = [
-        {"a": "a", "b": "1", "c": "1.2", "d": "2013-11-13"},
-        {"a": "x", "b": "2", "c": "2.3", "d": "2013-11-14"},
-        {"a": "y", "b": "3", "c": "3.4", "d": "2013-11-15"}
+        {"a": "a", "b": "1", "c": "1.2", "d": "2013-11-13", "e": "true"},
+        {"a": "x", "b": "2", "c": "2.3", "d": "2013-11-14", "e": "false"},
+        {"a": "y", "b": "3", "c": "3.4", "d": "2013-11-15", "e": "true"}
       ];
 
       var expected = [
-        {"a": "a", "b": 1, "c": 1.2, "d": new Date("2013-11-13")},
-        {"a": "x", "b": 2, "c": 2.3, "d": new Date("2013-11-14")},
-        {"a": "y", "b": 3, "c": 3.4, "d": new Date("2013-11-15")}
+        {"a": "a", "b": 1, "c": 1.2, "d": new Date("2013-11-13"), "e": true},
+        {"a": "x", "b": 2, "c": 2.3, "d": new Date("2013-11-14"), "e": false},
+        {"a": "y", "b": 3, "c": 3.4, "d": new Date("2013-11-15"), "e": true}
       ];
 
-      var s = new Readable({objectMode:true});
-      data.forEach(function(x){
-        s.push(x);
-      });
-      s.push(null);
 
-      var v = s.pipe(new Validator(schema));
-      v.on('error', function(err){ throw err;});
+      var ntests = 0;
+      [data, expected].forEach(function(data, i){
 
-      var counter = 0;
-      v.on('data', function(obj){
-        for(var key in obj){
-          if(key === 'd'){
-            assert.deepEqual(obj[key], expected[counter][key]);          
-          } else {
-            assert.strictEqual(obj[key], expected[counter][key]);          
+        var s = new Readable({objectMode:true});
+        data.forEach(function(x){
+          s.push(x);
+        });
+        s.push(null);
+
+        var v = s.pipe(new Validator(schema));
+        v.on('error', function(err){ throw err;});
+
+        var counter = 0;
+        v.on('data', function(obj){
+          for(var key in obj){
+            if(key === 'd'){
+              assert.deepEqual(obj[key], expected[counter][key]);          
+            } else {
+              assert.strictEqual(obj[key], expected[counter][key]);          
+            }
           }
-        }
-        counter++;
+          counter++;
+        });
+
+        v.on('end', function(){
+          ntests++;
+          if(ntests === 2){
+            done();
+          }
+        });
+
       });
 
-      v.on('end', done);
     });
 
+    it('should throw on foreignkey errors', function(done){
+      var foreignkeyValues = new Set();
+      foreignkeyValues.add(new Date("2013-11-13"));
+      foreignkeyValues.add(new Date("2013-11-14"));
 
-    it('should throw on validation error', function(done){
       var s = new Readable({objectMode:true});
-      s.push({"a": "y", "b": "3", "c": "3.4", "d": "2013/11/15"});
+      s.push({"a": "y", "b": "3", "c": "3.4", "d": "2013-11-15", "e": true});
+      s.push(null);
+
+      var v = s.pipe(new Validator(schema, {d: foreignkeyValues}));
+      v.on('error', function(err){
+        assert.equal('2013-11-15 is not a valid value according to its foreignkey', err.message);
+        done();
+      });      
+    });
+
+    it('should throw on coercion validation error', function(done){
+      var s = new Readable({objectMode:true});
+      s.push({"a": "y", "b": "3", "c": "3.4", "d": "2013/11/15", "e": true});
       s.push(null);
 
       var v = s.pipe(new Validator(schema));
@@ -155,7 +184,7 @@ describe('json schema table validator', function(){
     });
 
     it('should work when schema is {}', function(done){
-      var expected = {"a": "y", "b": "3", "c": "3.4", "d": "2013/11/15"};
+      var expected = {"a": "y", "b": "3", "c": "3.4", "d": "2013/11/15", "e": true};
       var s = new Readable({objectMode:true});
       s.push(expected);
       s.push(null);

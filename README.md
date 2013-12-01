@@ -32,6 +32,14 @@ one can create a validator transform stream with:
       //oops validation error
     });
 
+## Foreign keys support
+
+A ```referenced``` object can be passed to the constructor to check
+that the values of a field are inluded into the set of value provided
+in the referenced Set. ```referenced``` is an object with:
+- key equal to ```fields.name```
+- values equal to an ES6 Set containing all the possible values of the filed.
+
 
 Tests
 =====

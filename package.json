@@ -1,6 +1,6 @@
 {
   "name": "jts-validator",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A validator for tabular data following the JSON Table Schema RFC",
   "main": "index.js",
   "scripts": {
@@ -24,6 +24,8 @@
     "mocha": "~1.14.0"
   },
   "dependencies": {
-    "clone": "~0.1.11"
+    "clone": "~0.1.11",
+    "es6-shim": "~0.9.1",
+    "json-stable-stringify": "0.0.1"
   }
 }
