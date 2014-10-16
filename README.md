@@ -3,7 +3,7 @@ json-table-schema-validator
 
 A validator for tabular data following the JSON Table Schema RFC available as a transform stream operating in object mode.
 
-[![NPM](https://nodei.co/npm/jts-validator.png)](https://nodei.co/npm/jts-validator/)
+[![NPM](https://nodei.co/npm/json-table-schema-validator.png)](https://nodei.co/npm/json-table-schema-validator/)
 
 Usage
 =====
