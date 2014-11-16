@@ -22,7 +22,7 @@ for instance:
 
 one can create a validator transform stream with:
 
-    var Validator = require('jts-validator');
+    var Validator = require('json-table-schema-validator');
     var v = new Validator(schema);
     s.pipe(v); //s is a readable stream operating in object mode;
     v.on('data', function(coercedRow){
@@ -37,6 +37,7 @@ one can create a validator transform stream with:
 A ```referenced``` object can be passed to the constructor to check
 that the values of a field are inluded into the set of value provided
 in the referenced Set. ```referenced``` is an object with:
+
 - key equal to ```fields.name```
 - values equal to an ES6 Set containing all the possible values of the filed.
 
@@ -45,7 +46,6 @@ Tests
 =====
 
     npm test
-
 
 Licence
 =======
